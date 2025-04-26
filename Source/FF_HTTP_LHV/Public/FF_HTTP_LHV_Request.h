@@ -8,13 +8,6 @@
 
 #include "FF_HTTP_LHV_Request.generated.h"
 
-/*
-* 0 = Handler Sync
-* 1 = Handler Async
-* 2 = Handler Context
-*/
-#define LHV_HANDLER_TYPE 1
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDelegate_LibHv_Request, UHttpConnectionLhv*, Connection);
 
 UCLASS(BlueprintType)
@@ -32,23 +25,8 @@ private:
 
 public:
 
-#if (LHV_HANDLER_TYPE == 0)
-
-	TSharedFuture<int> Future;
-	HttpRequest* Request = nullptr;
-	HttpResponse* Response = nullptr;
-
-#elif (LHV_HANDLER_TYPE == 1)
-
 	HttpRequestPtr RequestPtr = nullptr;
 	HttpResponseWriterPtr ResponsePtr = nullptr;
-
-#elif (LHV_HANDLER_TYPE == 2)
-	
-	TSharedFuture<int> Future;
-	const HttpContextPtr* Context = nullptr;
-
-#endif
 
 	UPROPERTY(BlueprintReadOnly)
 	FDateTime RequestTime;

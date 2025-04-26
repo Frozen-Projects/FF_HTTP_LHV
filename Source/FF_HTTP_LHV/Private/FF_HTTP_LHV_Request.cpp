@@ -811,372 +811,455 @@ http_content_type UHttpConnectionLhv::Callback_Content_Type_Convert(ELibHvConten
 
 int32 UHttpConnectionLhv::Callback_Status_To_Code(ELibHvStatusCodes Status)
 {
-	switch (Status)
-	{
-		case ELibHvStatusCodes::Continue_100:
-			return 100;
-
-		case ELibHvStatusCodes::Switching_Protocols_101:
-			return 101;
-
-		case ELibHvStatusCodes::Processing_102:
-			return 102;
-
-		case ELibHvStatusCodes::OK_200:
-			return 200;
-
-		case ELibHvStatusCodes::Created_201:
-			return 201;
-
-		case ELibHvStatusCodes::Accepted_202:
-			return 202;
-
-		case ELibHvStatusCodes::Non_Authoratative_Information_203:
-			return 203;
-
-		case ELibHvStatusCodes::No_Content_204:
-			return 204;
-
-		case ELibHvStatusCodes::Reset_Content_205:
-			return 205;
-
-		case ELibHvStatusCodes::Partial_Content_206:
-			return 206;
-
-		case ELibHvStatusCodes::Multi_Status_207:
-			return 207;
-
-		case ELibHvStatusCodes::Already_Reported_208:
-			return 208;
-
-		case ELibHvStatusCodes::Im_Used_226:
-			return 226;
-
-		case ELibHvStatusCodes::Multiple_Choice_300:
-			return 300;
-
-		case ELibHvStatusCodes::Moved_Permanently_301:
-			return 301;
-
-		case ELibHvStatusCodes::Found_302:
-			return 302;
-
-		case ELibHvStatusCodes::See_Other_303:
-			return 303;
-
-		case ELibHvStatusCodes::Not_Modified_304:
-			return 304;
-
-		case ELibHvStatusCodes::Use_Proxy_305:
-			return 305;
-
-		case ELibHvStatusCodes::Temporary_Redirect_307:
-			return 307;
-
-		case ELibHvStatusCodes::Permanent_Redirect_308:
-			return 308;
-
-		case ELibHvStatusCodes::Bad_Request_400:
-			return 400;
-
-		case ELibHvStatusCodes::Unauthorized_401:
-			return 401;
-
-		case ELibHvStatusCodes::Payment_Required_402:
-			return 402;
-
-		case ELibHvStatusCodes::Forbidden_403:
-			return 403;
-
-		case ELibHvStatusCodes::Not_Found_404:
-			return 404;
-
-		case ELibHvStatusCodes::Method_Not_Allowed_405:
-			return 405;
-
-		case ELibHvStatusCodes::Not_Acceptable_406:
-			return 406;
-
-		case ELibHvStatusCodes::Proxy_Authentication_Required_407:
-			return 407;
-
-		case ELibHvStatusCodes::Request_Timeout_408:
-			return 408;
-
-		case ELibHvStatusCodes::Conflict_409:
-			return 409;
-
-		case ELibHvStatusCodes::Gone_410:
-			return 410;
-
-		case ELibHvStatusCodes::Lenght_Required_411:
-			return 411;
-
-		case ELibHvStatusCodes::Precondition_Failed_412:
-			return 412;
-
-		case ELibHvStatusCodes::Payload_Too_Large_413:
-			return 413;
-
-		case ELibHvStatusCodes::Uri_Too_Long_414:
-			return 414;
-
-		case ELibHvStatusCodes::Unsupported_Media_Type_415:
-			return 415;
-
-		case ELibHvStatusCodes::Range_Not_Satisfiable_416:
-			return 416;
-
-		case ELibHvStatusCodes::Expectation_Failed_417:
-			return 417;
-
-		case ELibHvStatusCodes::Misdirected_Request_421:
-			return 421;
-
-		case ELibHvStatusCodes::Unprocessable_Entity_422:
-			return 422;
-
-		case ELibHvStatusCodes::Locked_423:
-			return 423;
-
-		case ELibHvStatusCodes::Failed_Dependency_424:
-			return 424;
-
-		case ELibHvStatusCodes::Upgrade_Required_426:
-			return 426;
-
-		case ELibHvStatusCodes::Precondition_Required_428:
-			return 428;
-
-		case ELibHvStatusCodes::Too_Many_Requests_429:
-			return 429;
-
-		case ELibHvStatusCodes::Request_Header_Fields_Too_Large_431:
-			return 431;
-
-		case ELibHvStatusCodes::Unavailable_For_Legal_Reasons_451:
-			return 451;
-
-		case ELibHvStatusCodes::Internal_Server_Error_500:
-			return 500;
-
-		case ELibHvStatusCodes::Not_Implemented_501:
-			return 501;
-
-		case ELibHvStatusCodes::Bad_Gateway_502:
-			return 502;
-
-		case ELibHvStatusCodes::Service_Unavailable_503:
-			return 503;
-
-		case ELibHvStatusCodes::Gateway_Timeout_504:
-			return 504;
-
-		case ELibHvStatusCodes::Http_Version_Not_Supported_505:
-			return 505;
-
-		case ELibHvStatusCodes::Variant_Also_Negotiates_506:
-			return 506;
-
-		case ELibHvStatusCodes::Insufficient_Storage_507:
-			return 507;
-
-		case ELibHvStatusCodes::Loop_Detected_508:
-			return 508;
-
-		case ELibHvStatusCodes::Not_Extended_510:
-			return 510;
-
-		case ELibHvStatusCodes::Network_Authentication_Required_511:
-			return 511;
-
-		default:
-			return 404;
-	};
+	const FString Status_String = UEnum::GetValueAsName(Status).ToString();
+	TArray<FString> Array_Sections = UKismetStringLibrary::ParseIntoArray(Status_String, "_");
+	const FString Code_String = Array_Sections.Last();
+	return FCString::Atoi(*Code_String);
 }
 
 http_status UHttpConnectionLhv::Callback_Code_To_Status(int Status)
 {
-	switch (Status)
+	return static_cast<http_status>(Status);
+}
+
+bool UHttpConnectionLhv::CancelRequest()
+{
+	if (this->RequestPtr == nullptr)
 	{
-		case 100:
-			return http_status::HTTP_STATUS_CONTINUE;
+		return false;
+	}
 
-		case 101:
-			return http_status::HTTP_STATUS_SWITCHING_PROTOCOLS;
+	try
+	{
+		this->RequestPtr.get()->Cancel();
+	}
 
-		case 102:
-			return http_status::HTTP_STATUS_PROCESSING;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 200:
-			return http_status::HTTP_STATUS_OK;
+	return true;
+}
 
-		case 201:
-			return http_status::HTTP_STATUS_CREATED;
+bool UHttpConnectionLhv::GetClientAddress(FString& Out_Ip, int32& Out_Port)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 202:
-			return http_status::HTTP_STATUS_ACCEPTED;
+	try
+	{
+		Out_Ip = this->RequestPtr->client_addr.ip.c_str();
+		Out_Port = this->RequestPtr->client_addr.port;
+	}
 
-		case 203:
-			return http_status::HTTP_STATUS_NON_AUTHORITATIVE_INFORMATION;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 204:
-			return http_status::HTTP_STATUS_NO_CONTENT;
+	return true;
+}
 
-		case 205:
-			return http_status::HTTP_STATUS_RESET_CONTENT;
+bool UHttpConnectionLhv::GetQueries(TMap<FString, FString>& Out_Query, FString& Out_String)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 206:
-			return http_status::HTTP_STATUS_PARTIAL_CONTENT;
+	TMap<FString, FString> Temp_Query;
+	FString Query_String;
 
-		case 207:
-			return http_status::HTTP_STATUS_MULTI_STATUS;
+	try
+	{
+		const hv::QueryParams Queries = this->RequestPtr.get()->query_params;
+		const size_t Count_Querries = Queries.size();
+		int Index_Header = 0;
 
-		case 208:
-			return http_status::HTTP_STATUS_ALREADY_REPORTED;
+		for (const std::pair<const std::string, std::string>& Each_Query : Queries)
+		{
+			FString Key = Each_Query.first.c_str();
+			FString Value = Each_Query.second.c_str();
 
-		case 226:
-			return http_status::HTTP_STATUS_IM_USED;
+			Temp_Query.Add(Key, Value);
 
-		case 300:
-			return http_status::HTTP_STATUS_MULTIPLE_CHOICES;
+			if (Index_Header == (Count_Querries - 1))
+			{
+				Query_String += Key + ":" + Value;
+			}
 
-		case 301:
-			return http_status::HTTP_STATUS_MOVED_PERMANENTLY;
+			else
+			{
+				Query_String += Key + ":" + Value + "&";
+				Index_Header++;
+			}
+		}
+	}
 
-		case 302:
-			return http_status::HTTP_STATUS_FOUND;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 303:
-			return http_status::HTTP_STATUS_SEE_OTHER;
+	Out_Query = Temp_Query;
+	Out_String = Query_String;
 
-		case 304:
-			return http_status::HTTP_STATUS_NOT_MODIFIED;
+	return true;
+}
 
-		case 305:
-			return http_status::HTTP_STATUS_USE_PROXY;
+bool UHttpConnectionLhv::FindQuery(FString& Value, FString Key)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 307:
-			return http_status::HTTP_STATUS_TEMPORARY_REDIRECT;
+	FString TempValue;
 
-		case 308:
-			return http_status::HTTP_STATUS_PERMANENT_REDIRECT;
+	try
+	{
+		const std::string RawString = this->RequestPtr->GetParam(TCHAR_TO_UTF8(*Key), std::string());
 
-		case 400:
-			return http_status::HTTP_STATUS_BAD_REQUEST;
+		if (RawString.empty())
+		{
+			return false;
+		}
 
-		case 401:
-			return http_status::HTTP_STATUS_UNAUTHORIZED;
+		TempValue = UTF8_TO_TCHAR(RawString.c_str());
+	}
 
-		case 402:
-			return http_status::HTTP_STATUS_PAYMENT_REQUIRED;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 403:
-			return http_status::HTTP_STATUS_FORBIDDEN;
+	Value = TempValue;
+	return true;
+}
 
-		case 404:
-			return http_status::HTTP_STATUS_NOT_FOUND;
+bool UHttpConnectionLhv::GetBody(FString& Out_Body, int64& Out_BodySize)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 405:
-			return http_status::HTTP_STATUS_METHOD_NOT_ALLOWED;
+	FString TempBody;
+	size_t TempLenght = 0;
 
-		case 406:
-			return http_status::HTTP_STATUS_NOT_ACCEPTABLE;
+	try
+	{
+		const std::string RawString = this->RequestPtr->body;
 
-		case 407:
-			return http_status::HTTP_STATUS_PROXY_AUTHENTICATION_REQUIRED;
+		if (RawString.empty())
+		{
+			return false;
+		}
 
-		case 408:
-			return http_status::HTTP_STATUS_REQUEST_TIMEOUT;
+		TempBody = UTF8_TO_TCHAR(RawString.c_str());
+		TempLenght = RawString.size();
+	}
 
-		case 409:
-			return http_status::HTTP_STATUS_CONFLICT;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 410:
-			return http_status::HTTP_STATUS_GONE;
+	Out_Body = TempBody;
+	Out_BodySize = (int64)TempLenght;
 
-		case 411:
-			return http_status::HTTP_STATUS_LENGTH_REQUIRED;
+	return true;
+}
 
-		case 412:
-			return http_status::HTTP_STATUS_PRECONDITION_FAILED;
+bool UHttpConnectionLhv::GetPaths(FString& Out_Method, FString& Out_Scheme, FString& Out_Host, int32& Out_Port, FString& Out_Path, FString& Out_Url)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 413:
-			return http_status::HTTP_STATUS_PAYLOAD_TOO_LARGE;
+	try
+	{
+		Out_Port = this->RequestPtr->port;
 
-		case 414:
-			return http_status::HTTP_STATUS_URI_TOO_LONG;
+		if (!this->RequestPtr->scheme.empty())
+		{
+			Out_Scheme = UTF8_TO_TCHAR(this->RequestPtr->scheme.c_str());
+		}
 
-		case 415:
-			return http_status::HTTP_STATUS_UNSUPPORTED_MEDIA_TYPE;
+		if (!this->RequestPtr->host.empty())
+		{
+			Out_Host = UTF8_TO_TCHAR(this->RequestPtr->host.c_str());
+		}
 
-		case 416:
-			return http_status::HTTP_STATUS_RANGE_NOT_SATISFIABLE;
+		if (!this->RequestPtr->path.empty())
+		{
+			Out_Path = UTF8_TO_TCHAR(this->RequestPtr->path.c_str());
+		}
 
-		case 417:
-			return http_status::HTTP_STATUS_EXPECTATION_FAILED;
+		if (!this->RequestPtr->url.empty())
+		{
+			Out_Url = UTF8_TO_TCHAR(this->RequestPtr->url.c_str());
+		}
+	}
 
-		case 421:
-			return http_status::HTTP_STATUS_MISDIRECTED_REQUEST;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 422:
-			return http_status::HTTP_STATUS_UNPROCESSABLE_ENTITY;
+	Out_Method = this->Callback_Type_Method(this->RequestPtr->method);
+	return true;
+}
 
-		case 423:
-			return http_status::HTTP_STATUS_LOCKED;
+bool UHttpConnectionLhv::GetHeaders(TMap<FString, FString>& Out_Headers, FString& Out_String)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 424:
-			return http_status::HTTP_STATUS_FAILED_DEPENDENCY;
+	FString Header_String;
+	TMap<FString, FString> Temp_Headers;
 
-		case 426:
-			return http_status::HTTP_STATUS_UPGRADE_REQUIRED;
+	try
+	{
+		const http_headers Headers = this->RequestPtr->headers;
+		const size_t Count_Headers = Headers.size();
 
-		case 428:
-			return http_status::HTTP_STATUS_PRECONDITION_REQUIRED;
+		int Index_Header = 0;
 
-		case 429:
-			return http_status::HTTP_STATUS_TOO_MANY_REQUESTS;
+		for (const std::pair<const std::string, std::string>& Each_Header : Headers)
+		{
+			const FString Key = UTF8_TO_TCHAR(Each_Header.first.c_str());
+			const FString Value = UTF8_TO_TCHAR(Each_Header.second.c_str());
 
-		case 431:
-			return http_status::HTTP_STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE;
+			Temp_Headers.Add(Key, Value);
 
-		case 451:
-			return http_status::HTTP_STATUS_UNAVAILABLE_FOR_LEGAL_REASONS;
+			if (Index_Header == (Count_Headers - 1))
+			{
+				Header_String += Key + ":" + Value;
+			}
 
-		case 500:
-			return http_status::HTTP_STATUS_INTERNAL_SERVER_ERROR;
+			else
+			{
+				Header_String += Key + ":" + Value + LINE_TERMINATOR_ANSI;
+				Index_Header++;
+			}
+		}
+	}
 
-		case 501:
-			return http_status::HTTP_STATUS_NOT_IMPLEMENTED;
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
 
-		case 502:
-			return http_status::HTTP_STATUS_BAD_GATEWAY;
+	Out_Headers = Temp_Headers;
+	Out_String = Header_String;
 
-		case 503:
-			return http_status::HTTP_STATUS_SERVICE_UNAVAILABLE;
+	return true;
+}
 
-		case 504:
-			return http_status::HTTP_STATUS_GATEWAY_TIMEOUT;
+bool UHttpConnectionLhv::FindHeader(FString Key, FString& Out_Value)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
 
-		case 505:
-			return http_status::HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED;
+	if (Key.IsEmpty())
+	{
+		return false;
+	}
 
-		case 506:
-			return http_status::HTTP_STATUS_VARIANT_ALSO_NEGOTIATES;
+	std::string Value;
 
-		case 507:
-			return http_status::HTTP_STATUS_INSUFFICIENT_STORAGE;
+	try
+	{
+		const http_headers Headers = this->RequestPtr->headers;
 
-		case 508:
-			return http_status::HTTP_STATUS_LOOP_DETECTED;
+		if (Headers.size() == 0)
+		{
+			return false;
+		}
 
-		case 510:
-			return http_status::HTTP_STATUS_NOT_EXTENDED;
+		if (!Headers.contains(TCHAR_TO_UTF8(*Key)))
+		{
+			return false;
+		}
 
-		case 511:
-			return http_status::HTTP_STATUS_NETWORK_AUTHENTICATION_REQUIRED;
+		Value = Headers.at(TCHAR_TO_UTF8(*Key));
 
-		default:
-			return http_status::HTTP_STATUS_NOT_FOUND;
-	};
+		if (Value.empty())
+		{
+			return false;
+		}
+	}
+
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
+
+	Out_Value = UTF8_TO_TCHAR(Value.c_str());
+
+	return true;
+}
+
+bool UHttpConnectionLhv::GetContentType(FString& Out_Type_String, ELibHvContentTypes& Out_Content_Type)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
+
+	this->Callback_Content_Type(Out_Content_Type, Out_Type_String, this->RequestPtr->content_type);
+	return true;
+}
+
+bool UHttpConnectionLhv::GetContentLenght(int64& Out_Lenght)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
+
+	size_t ContentLeght = 0;
+
+	try
+	{
+		ContentLeght = this->RequestPtr->content_length;
+	}
+
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
+
+	Out_Lenght = ContentLeght;
+	return true;
+}
+
+bool UHttpConnectionLhv::SendString(const FString In_Response, TMap<FString, FString> In_Header, ELibHvStatusCodes StatusCode)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
+
+	int ReturnValue = 0;
+
+	try
+	{
+		HttpResponse TempResponse;
+		TempResponse.String(TCHAR_TO_UTF8(*In_Response));
+
+		for (TPair<FString, FString>& EachHeader : In_Header)
+		{
+			TempResponse.SetHeader(TCHAR_TO_UTF8(*EachHeader.Key), TCHAR_TO_UTF8(*EachHeader.Value));
+		}
+
+		ReturnValue = ResponsePtr.get()->Begin();
+		ReturnValue = ResponsePtr.get()->WriteResponse(&TempResponse);
+		ReturnValue = ResponsePtr.get()->End();
+	}
+
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
+
+	return (ReturnValue == 0) ? true : false;
+}
+
+bool UHttpConnectionLhv::SendData(TArray<uint8> In_Bytes, TMap<FString, FString> In_Header, ELibHvStatusCodes StatusCode, bool bNoCopy)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
+
+	int ReturnValue = 0;
+
+	try
+	{
+		HttpResponse TempResponse;
+		TempResponse.Data(In_Bytes.GetData(), In_Bytes.Num(), bNoCopy);
+
+		for (TPair<FString, FString>& EachHeader : In_Header)
+		{
+			TempResponse.SetHeader(TCHAR_TO_UTF8(*EachHeader.Key), TCHAR_TO_UTF8(*EachHeader.Value));
+		}
+
+		ReturnValue = ResponsePtr.get()->Begin();
+		ReturnValue = ResponsePtr.get()->WriteResponse(&TempResponse);
+		ReturnValue = ResponsePtr.get()->End();
+	}
+
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
+
+	return (ReturnValue == 0) ? true : false;
+}
+
+bool UHttpConnectionLhv::SendResponse(const FString In_Response, TMap<FString, FString> In_Header, ELibHvStatusCodes StatusCode, ELibHvContentTypes ContentTypes)
+{
+	if (this->RequestPtr == nullptr)
+	{
+		return false;
+	}
+
+	int ReturnValue = 0;
+
+	try
+	{
+		HttpResponse TempResponse;
+		TempResponse.SetContentType(this->Callback_Content_Type_Convert(ContentTypes));
+		TempResponse.SetBody(TCHAR_TO_UTF8(*In_Response));
+
+		for (TPair<FString, FString>& EachHeader : In_Header)
+		{
+			TempResponse.SetHeader(TCHAR_TO_UTF8(*EachHeader.Key), TCHAR_TO_UTF8(*EachHeader.Value));
+		}
+
+		ReturnValue = ResponsePtr.get()->Begin();
+		ReturnValue = ResponsePtr.get()->WriteResponse(&TempResponse);
+		ReturnValue = ResponsePtr.get()->End();
+	}
+
+	catch (const std::exception& Exception)
+	{
+		const FString ExceptionString = Exception.what();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *ExceptionString);
+		return false;
+	}
+
+	return (ReturnValue == 0) ? true : false;
 }

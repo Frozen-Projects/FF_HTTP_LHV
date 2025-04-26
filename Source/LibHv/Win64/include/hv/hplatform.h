@@ -17,6 +17,7 @@
 #elif defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__) || defined(__xlc__))
     #include <TargetConditionals.h>
     #if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+        #include <AvailabilityMacros.h>
         #define OS_MAC
     #elif defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
         #define OS_IOS
@@ -60,6 +61,12 @@
     #define ARCH_MIPS64
 #elif defined(__mips__)
     #define ARCH_MIPS
+#elif defined(__riscv)
+    #define ARCH_RISCV
+#elif defined(__ppc64__) || defined(__powerpc64__)
+    #define ARCH_PPC64
+#elif defined(__ppc__) || defined(__powerpc__)
+    #define ARCH_PPC
 #else
     #warning "Untested hardware architecture!"
 #endif
@@ -139,6 +146,10 @@
 
 #else
 #warning "Untested compiler!"
+#endif
+
+#ifndef __GNUC_PREREQ
+#define __GNUC_PREREQ(a, b)	0
 #endif
 
 // headers
@@ -253,7 +264,8 @@
       defined(__MIPSEL)  || defined(__MIPS64EL)
     #define BYTE_ORDER  LITTLE_ENDIAN
 #elif defined(__ARMEB__) || defined(__AARCH64EB__) || \
-      defined(__MIPSEB)  || defined(__MIPS64EB)
+      defined(__MIPSEB)  || defined(__MIPS64EB) || \
+      defined(__ppc__)   || defined(__ppc64__)
     #define BYTE_ORDER  BIG_ENDIAN
 #elif defined(OS_WIN)
     #define BYTE_ORDER  LITTLE_ENDIAN

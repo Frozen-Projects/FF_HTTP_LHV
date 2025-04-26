@@ -36,26 +36,6 @@ void AHTTP_Server_LHV::Tick(float DeltaTime)
 
 bool AHTTP_Server_LHV::HTTP_Server_Start(FString& Out_Code)
 {
-#if (LHV_HANDLER_TYPE == 0)
-
-	auto Callback_Router_Handler = [this](HttpRequest* Request, HttpResponse* Response)->int
-		{
-			UHttpConnectionLhv* LibHvConnection = NewObject<UHttpConnectionLhv>();
-			LibHvConnection->Request = Request;
-			LibHvConnection->Response = Response;
-			LibHvConnection->RequestTime = FDateTime::Now();
-
-			this->Parent_Actor->Delegate_HTTP_LibHv_Request.Broadcast(LibHvConnection);
-			this->Parent_Actor->OnHttpAdvMessage(LibHvConnection);
-
-			LibHvConnection->Future.Wait();
-			int StatusCode = LibHvConnection->Future.Get();
-
-			return StatusCode;
-		};
-
-#elif (LHV_HANDLER_TYPE == 1)
-
 	auto Callback_Router_Handler = [this](const HttpRequestPtr& Request, const HttpResponseWriterPtr& Response)
 		{
 			UHttpConnectionLhv* LibHvConnection = NewObject<UHttpConnectionLhv>();
@@ -66,25 +46,6 @@ bool AHTTP_Server_LHV::HTTP_Server_Start(FString& Out_Code)
 			this->Delegate_HTTP_LibHv_Request.Broadcast(LibHvConnection);
 			this->OnHttpAdvMessage(LibHvConnection);
 		};
-
-#elif (LHV_HANDLER_TYPE == 2)
-
-	auto Callback_Router_Handler = [this](const HttpContextPtr& Context)->int
-		{
-			UHttpConnectionLhv* LibHvConnection = NewObject<UHttpConnectionLhv>();
-			LibHvConnection->Context = &Context;
-			LibHvConnection->RequestTime = FDateTime::Now();
-
-			this->Delegate_HTTP_LibHv_Request.Broadcast(LibHvConnection);
-			this->OnHttpAdvMessage(LibHvConnection);
-
-			LibHvConnection->Future.Wait();
-			int StatusCode = LibHvConnection->Future.Get();
-
-			return StatusCode;
-		};
-
-#endif
 
 	auto Callback_Router_Error = [this](const HttpContextPtr& Context)->int
 		{

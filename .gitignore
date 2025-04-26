@@ -1,3 +1,6 @@
 # Compiled source files for the engine to use
 Binaries/
 Intermediate/
+
+# Except for the hv.dll file
+!Binaries/Win64/hv.dll
