@@ -40,7 +40,6 @@ We won't have a plan to support other platforms than Windows like Linux, Mac, An
 
 ## ENGINE SUPPORT
 We support "only" current engine release. We update our plugin "after one month" when there is a new one.
-(For example, current engine release at December 2023 is Unreal Engine 5.3.2. We only support this version. When 5.4 released, we will update it after one month and there will be no 5.3 support. If you need it, it is your responsibility to solve breaking changes on your fork. We won't support preview releases.)
 
 ## DEVELOPMENT SUPPORT
 If you need support about "HTTP Server libraries", post issue on their GitHub repo. We just implement their library to Unreal Engine.
